@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hs.oauth.demo.mapper.CPermissionDAO">
+
+    <resultMap type="com.hs.oauth.demo.bean.CPermission" id="permissionDAOResult">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="permissionName" column="permission_name" jdbcType="VARCHAR" />
+        <result property="permissionUrl" column="permission_url" jdbcType="VARCHAR" />
+        <result property="gmtCreate" column="gmt_create" jdbcType="DATE" />
+        <result property="gmtUpdate" column="gmt_update" jdbcType="DATE" />
+    </resultMap>
+
+    <sql id="BASE_COLUMN" >
+        id id,
+        permission_name permissionName,
+        permission_url permissionUrl,
+        gmt_create gmtCreate,
+        gmt_update gmtUpdate
+    </sql>
+
+    <sql id="BASE_WHERE">
+        <trim prefix="where" suffixOverrides="and | or">
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="permissionName != null and permissionName != ''">
+                permission_name = #{permissionName,jdbcType=VARCHAR} and
+            </if>
+            <if test="permissionUrl != null and permissionUrl != ''">
+                permission_url = #{permissionUrl,jdbcType=VARCHAR} and
+            </if>
+        </trim>
+    </sql>
+
+    <!-- 根据ID查询 -->
+    <select id="getPermissionsByRoleId" parameterType="java.lang.Integer" resultType="com.hs.oauth.demo.bean.CPermission">
+        SELECT
+          pers.id id,
+          pers.permission_name permissionName,
+          pers.permission_url permissionUrl,
+          pers.gmt_create gmtCreate,
+          pers.gmt_update gmtUpdate
+        FROM
+          t_c_permission pers
+        LEFT JOIN t_c_role_permission rpers ON pers.id = rpers.permission_id
+        <trim prefix="where" suffixOverrides="and | or">
+            <if test="roleId != null">
+                rpers.role_id = #{roleId,jdbcType=INTEGER}
+            </if>
+        </trim>
+        ORDER BY pers.gmt_create DESC
+    </select>
+
+    <!-- 查询所有权限信息 -->
+    <select id="queryAllPermission" resultType="com.hs.oauth.demo.bean.CPermission">
+        SELECT
+          <include refid="com.hs.oauth.demo.mapper.CPermissionDAO.BASE_COLUMN" />
+        FROM
+          t_c_permission
+    </select>
+
+</mapper>
